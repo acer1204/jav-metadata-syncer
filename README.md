@@ -272,6 +272,18 @@ curl -X PUT http://localhost:7712/api/settings \
 - **MissAV 的劇照是 JS 動態載入**，不在爬取範圍（`sample_images` 為空）
 - Windows 主控台預設 cp950 印不出日文，CLI 已自動切 UTF-8；用 PowerShell 呼叫 API 沒問題（回應已帶 `charset=utf-8`）
 
+## MCP server（Streamable HTTP）
+
+本服務同時是一個 **MCP server**，掛在 `http://localhost:7712/mcp`（Streamable HTTP transport），可直接接入任何支援 MCP 的 agent。
+
+三個 metadata-syncer（comic / show / jav）共用同一組**核心 tools**，agent 用一套邏輯就能接三個服務：
+
+```
+list_sources / preview_search / metadata_search / metadata_by_id / get_settings / update_settings
+```
+
+本服務額外提供：`generate_movie_nfo_api`、`export_movie_files`（回傳二進位的 export.zip / 圖片代理不暴露為 tool）。
+
 ## 免責聲明
 
 本工具僅供**個人媒體庫整理**用途，metadata 版權屬原網站所有。請遵守當地法律與來源網站的使用條款。
