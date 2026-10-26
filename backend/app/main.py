@@ -55,6 +55,28 @@ def health():
     return {"status": "ok"}
 
 
+# ─── MCP server（Streamable HTTP, /mcp）───────────────────────────────
+# 與 comic / show-metadata-syncer 共用同一組核心 tool 名稱，agent 可一套邏輯接三服務
+MCP_TOOLS = [
+    "list_sources", "preview_search", "metadata_search", "metadata_by_id",
+    "get_settings", "update_settings",
+    # jav 專屬：NFO 輸出（回傳二進位的 export.zip / 圖片代理不暴露為 tool）
+    "generate_movie_nfo_api", "export_movie_files",
+]
+try:
+    from fastapi_mcp import FastApiMCP
+    mcp = FastApiMCP(
+        app,
+        name="JAV Metadata Syncer",
+        description="成人影片 metadata 查詢（JavBus / JavTrailers / MissAV），統一 canonical JSON + Emby NFO 輸出。",
+        include_operations=MCP_TOOLS,
+    )
+    mcp.mount_http()  # Streamable HTTP transport at /mcp
+except Exception as e:  # fastapi-mcp 未安裝或版本 mismatch 時降級為純 REST
+    import logging
+    logging.warning(f"MCP mount 失敗，降級為純 REST API: {e}")
+
+
 # In Docker the built frontend is copied to /app/static.
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 
